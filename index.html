@@ -164,30 +164,14 @@
                                             
 
                                                 
-                                                                    <h4 id="第一步：Django-Settings-配置数据库"><a href="#第一步：Django-Settings-配置数据库" class="headerlink" title="第一步：Django Settings 配置数据库"></a>第一步：<code>Django Settings</code> 配置数据库</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">DATABASES &#x3D; &#123;</span><br><span class="line">    ‘default’: &#123;</span><br><span class="line">        ‘ENGINE’: ‘django.db.backends.sqlite3’,</span><br><span class="line">        ’NAME’: os.path.join(BASE_DIR, ‘db.sqlite3’),</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    ’slave’: &#123;</span><br><span class="line">        ‘ENGINE’: ‘django.db.backends.mysql’,</span><br><span class="line">        ’NAME’: ‘welfare’,</span><br><span class="line">        ‘USER’: ‘welfare’,</span><br><span class="line">        ‘PASSWORD’: *****,</span><br><span class="line">        ‘HOST’: ‘192.168.XXX.XXX’,</span><br><span class="line">        ‘PORTT’: ‘3306’,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h4 id="第二步：将migrations记录同步到slave数据库"><a href="#第二步：将migrations记录同步到slave数据库" class="headerlink" title="第二步：将migrations记录同步到slave数据库"></a>第二步：将<code>migrations</code>记录同步到<code>slave</code>数据库</h4><p><strong>mysql中新建welfare库</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> welfare <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci;</span><br></pre></td></tr></table></figure>
-<p><strong>用户授权</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> <span class="keyword">privileges</span> <span class="keyword">on</span> welfare.* <span class="keyword">to</span> <span class="string">"welfare”@“%"</span> <span class="keyword">identified</span> <span class="keyword">by</span> “Root123.”;</span><br></pre></td></tr></table></figure>
-<p><strong>同步migrate操作</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py migrate <span class="comment">--database slave</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="第三步：导出sqlite3数据"><a href="#第三步：导出sqlite3数据" class="headerlink" title="第三步：导出sqlite3数据"></a>第三步：导出<code>sqlite3</code>数据</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py dumpdata --database default &gt; datadump20190917.json</span><br></pre></td></tr></table></figure>
-
-<h4 id="第四步：导入数据"><a href="#第四步：导入数据" class="headerlink" title="第四步：导入数据"></a>第四步：导入数据</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py loaddata --database slave &lt; datadump20190917.json</span><br></pre></td></tr></table></figure>
-
-<p><strong>错图提示</strong></p>
-<blockquote>
-<p>django.db.utils.IntegrityError: Problem installing fixture ‘/Users/yanghao/PycharmProjects/welfare/datadump20190917.json’: Could not load contenttypes.ContentType(pk=12): (1062, “Duplicate entry ‘django_apscheduler-djangojob’ for key ‘django_content_type_app_label_model_76bd3d3b_uniq’”)</p>
-</blockquote>
-<p><strong>解决方式</strong><br>因为 auth_permission， django_content_type中存在数据，这些数据是migrate时产生的content_type相关表</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">delete from auth_permission;</span><br><span class="line">delete from django_content_type;</span><br></pre></td></tr></table></figure>
-
-<h4 id="第五步：修改Mysql为默认数据库"><a href="#第五步：修改Mysql为默认数据库" class="headerlink" title="第五步：修改Mysql为默认数据库"></a>第五步：修改Mysql为默认数据库</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">DATABASES = &#123;</span><br><span class="line">    <span class="string">'default'</span>: &#123;</span><br><span class="line">        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.mysql'</span>,</span><br><span class="line">        <span class="string">'NAME'</span>: db_name,</span><br><span class="line">        <span class="string">'USER'</span>: db_user,</span><br><span class="line">        <span class="string">'PASSWORD'</span>: db_pwd,</span><br><span class="line">        <span class="string">'HOST'</span>: db_host,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-                                                                        
+                                                    <p>Sqlite在前期测试，开发提供的极大的便捷性。本文解决从Django的默认数据库（Sqlite）迁移数据到MySQL。</p>
+<h4 id="第一步：Django-Settings-配置数据库"><a href="#第一步：Django-Settings-配置数据库" class="headerlink" title="第一步：Django Settings 配置数据库"></a>第一步：<code>Django Settings</code> 配置数据库</h4>
+                                                        
+                                                            <a class="article-more-link" href="/2020/04/15/Django-Sqlite-%E8%BF%81%E7%A7%BB%E5%88%B0-MySQL/">
+                                                                阅读全文...
+                                                            </a>
+                                                            
+                                                                
                                     </div>
                                     <footer class="article-footer">
                                         <a data-url="https://bookpro.xyz/2020/04/15/Django-Sqlite-%E8%BF%81%E7%A7%BB%E5%88%B0-MySQL/" data-id="ck90sk39p00043uqcgtu2eb2j" class="article-share-link">
@@ -243,21 +227,13 @@
                                             
 
                                                 
-                                                                    <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.<br>&lt;! –more– &gt;</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-                                                                        
+                                                    <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+                                                        
+                                                            <a class="article-more-link" href="/2020/04/14/hello-world/">
+                                                                阅读全文...
+                                                            </a>
+                                                            
+                                                                
                                     </div>
                                     <footer class="article-footer">
                                         <a data-url="https://bookpro.xyz/2020/04/14/hello-world/" data-id="ck8zrvqv400005qqch7nl6cn2" class="article-share-link">
