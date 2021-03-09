@@ -2347,10 +2347,13 @@ pre .javascript .function {
   content: '\f1a9';
 }
 .navbar .nav.nav-main .nav-item:nth-child(4) .nav-item-link::before {
-  content: '\f174';
+  content: '\f18c';
 }
 .navbar .nav.nav-main .nav-item:nth-child(5) .nav-item-link::before {
-  content: '\f136';
+  content: '\f153';
+}
+.navbar .nav.nav-main .nav-item:nth-child(6) .nav-item-link::before {
+  content: '\f174';
 }
 .navbar-bottom {
   position: absolute;
